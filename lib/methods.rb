@@ -48,6 +48,7 @@ def add_a_gift(gifts)
   # ajouter le gift créé à la liste des cadeaux
   gifts << gift
   display_gifts(gifts)
+  save_csv(gifts)
 end
 
 def delete_a_gift(gifts)
@@ -60,7 +61,7 @@ def delete_a_gift(gifts)
   index = gets.chomp.to_i
   gifts.delete_at(index - 1)
   display_gifts(gifts)
-
+  save_csv(gifts)
 end
 
 
@@ -78,6 +79,7 @@ def mark_as_bought(gifts)
   # gifts[index - 1][:bought] = true
   # Réafficher la liste actualisée
   display_gifts(gifts)
+  save_csv(gifts)
 end
 
 
@@ -97,9 +99,34 @@ def scrap_ideas(gifts)
   display_gifts(gifts)
   # demander à l'utilisateur de choisir quel cadeau de la liste scrappée il veut ajouter
   # ajouter un nouveau cadeau à la liste
+  save_csv(gifts)
 end
 
 
+
+def load_csv
+  filepath = 'lib/gifts.csv'
+  gifts = []
+
+  CSV.foreach(filepath, { headers: :first_row }) do |row|
+    gift = { name: row['name'], price: row['price'].to_i, bought: row['bought'] == "true" }
+    gifts << gift
+  end
+  return gifts
+end
+
+def save_csv(gifts)
+  csv_options = { col_sep: ',', force_quotes: true, quote_char: '"' }
+  filepath = 'lib/gifts.csv'
+
+  CSV.open(filepath, 'wb', csv_options) do |csv|
+    csv << ['name', 'price', 'bought']
+
+    gifts.each do |gift|
+      csv << [ gift[:name], gift[:price], gift[:bought] ]
+    end
+  end
+end
 
 
 
